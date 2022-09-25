@@ -51,20 +51,17 @@
                 display: inline;
                 font-size: 105%;
                 margin-top: 8px;
-                position: absolute;
                 font-family: Consolas, "courier new";
             }
 
             .box
             {
-                width: 814px;
+                width: 807px;
                 height: 30px;
                 font-size: 105%;
                 padding-left: 5px;
-                margin-left: 78px;
                 border: 1px solid black;
                 font-family: Consolas, "courier new";
-                font-weight: normal;
             }
 
             .box:focus
@@ -87,7 +84,7 @@
             </div>
         </div>
 
-        <form class="bottom" action="" method="post">
+        <div class="bottom">
             <div class="enter">
                 <div class="tip" id="tip">
                     Message:
@@ -95,6 +92,6 @@
 
                 <input type="text" class="box" id="box" maxlength="256" value="這裡是給使用者輸入文字的地方。為了避免資料庫被灌爆，我到時將在此進行長度上的限制。" readonly>
             </div>
-        </form>
+        </div>
     </body>
 </html>

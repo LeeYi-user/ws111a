@@ -63,20 +63,17 @@ app.use(function(ctx)
                         display: inline;
                         font-size: 105%;
                         margin-top: 8px;
-                        position: absolute;
                         font-family: Consolas, "courier new";
                     }
         
                     .box
                     {
-                        width: 814px;
+                        width: 807px;
                         height: 30px;
                         font-size: 105%;
                         padding-left: 5px;
-                        margin-left: 78px;
                         border: 1px solid black;
                         font-family: Consolas, "courier new";
-                        font-weight: normal;
                     }
         
                     .box:focus
@@ -99,7 +96,7 @@ app.use(function(ctx)
                     </div>
                 </div>
         
-                <form class="bottom" action="" method="post">
+                <div class="bottom">
                     <div class="enter">
                         <div class="tip" id="tip">
                             Message:
@@ -107,9 +104,9 @@ app.use(function(ctx)
         
                         <input type="text" class="box" id="box" maxlength="256" value="這裡是給使用者輸入文字的地方。為了避免資料庫被灌爆，我到時將在此進行長度上的限制。" readonly>
                     </div>
-                </form>
+                </div>
             </body>
-        </html>        
+        </html>
         `;
     }
     else
@@ -148,7 +145,6 @@ app.use(function(ctx)
                         display: inline;
                         font-size: 105%;
                         margin-top: 8px;
-                        position: absolute;
                         font-family: Consolas, "courier new";
                     }
         
@@ -158,11 +154,8 @@ app.use(function(ctx)
                         height: 30px;
                         font-size: 105%;
                         padding-left: 5px;
-                        margin-left: 87px;
                         border: 1px solid black;
                         font-family: Consolas, "courier new";
-                        font-weight: normal;
-                        position: relative;
                     }
         
                     .box:focus
@@ -170,9 +163,14 @@ app.use(function(ctx)
                         outline: none !important;
                     }
         
+                    .bottom
+                    {
+                        margin-top: 100px;
+                    }
+        
                     .btn
                     {
-                        width: 110px;
+                        width: auto;
                         border: 1px solid black;
                         color: black;
                         padding: 10px 20px;
@@ -195,9 +193,9 @@ app.use(function(ctx)
                     Welcome
                 </div>
         
-                <form class="center" action="" method="post">
+                <div class="center">
                     <div class="enter">
-                        <div class="tip" id="username_tip">
+                        <div class="tip">
                             Username:
                         </div>
         
@@ -205,27 +203,27 @@ app.use(function(ctx)
                     </div>
         
                     <div class="enter" style="margin-top: 50px;">
-                        <div class="tip" id="password_tip">
+                        <div class="tip">
                             Password:
                         </div>
         
                         <input type="password" class="box" id="password_box" maxlength="32">
                     </div>
-                </form>
+                </div>
         
-                <div>
-                    <div class="enter" style="margin-top: 100px;">
+                <div class="bottom">
+                    <div class="enter">
                         <button class="btn" id="sign_in" onclick="location.href='home.html'">
                             Sign In
                         </button>
         
-                        <button class="btn" style="margin-left: 50px; position: relative;" id="sign_up" onclick="location.href='home.html'">
+                        <button class="btn" style="margin-left: 50px;" id="sign_up" onclick="location.href='home.html'">
                             Sign Up
                         </button>
                     </div>
                 </div>
             </body>
-        </html>        
+        </html>
         `;
     }
 });
