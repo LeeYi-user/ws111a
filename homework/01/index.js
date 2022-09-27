@@ -68,7 +68,7 @@ app.use(function(ctx)
         
                     .box
                     {
-                        width: 807px;
+                        width: 800px;
                         height: 30px;
                         font-size: 105%;
                         padding-left: 5px;
