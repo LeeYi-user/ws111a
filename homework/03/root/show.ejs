@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            .outer
+            {
+                margin-top: 100px;
+                text-align: center;
+            }
+
+            .inter
+            {
+                width: 500px;
+                margin-top: 50px;
+                margin-left: auto;
+                margin-right: auto;
+                white-space: pre-line;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1 class="outer">
+            <%= post.title %>
+        </h1>
+
+        <div class="inter">
+            <%= post.content %>
+        </div>
+
+        <div class="outer">
+            <a href="/">
+                back
+            </a>
+        </div>
+    </body>
+</html>

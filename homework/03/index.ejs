@@ -1,0 +1,59 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            .outer
+            {
+                margin-top: 100px;
+                text-align: center;
+            }
+
+            .inter
+            {
+                width: 500px;
+                margin-top: 50px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .post
+            {
+                margin-top: 50px;
+            }
+
+            .remove
+            {
+                float: right;
+                margin-right: 40px;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1 class="outer">
+            Posts
+        </h1>
+
+        <ul class="inter">
+            <% for (let post of posts) { %>
+                <li class="post">
+                    <a href="/show/<%= post.id %>">
+                        <%= post.title %>
+                    </a>
+
+                    <a href="/remove/<%= post.id %>" class="remove">
+                        [X]
+                    </a>
+                </li>
+            <% } %>
+        </ul>
+
+        <div class="outer">
+            <a href="/create">
+                create
+            </a>
+        </div>
+    </body>
+</html>
