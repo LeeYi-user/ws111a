@@ -1,0 +1,118 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            .title
+            {
+                margin-top: 100px;
+                text-align: center;
+            }
+
+            .all
+            {
+                height: 600px;
+                width: 952px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .left
+            {
+                height: 500px;
+                width: 300px;
+                float: left;
+                margin: 50px 50px 50px 50px;
+                border: 1px solid black;
+                overflow: auto;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            .right
+            {
+                height: 500px;
+                width: 500px;
+                float: left;
+                margin: 50px 50px 50px 0px;
+            }
+
+            .top
+            {
+                height: 150px;
+                width: 100%;
+                margin-bottom: 50px;
+                border: 1px solid black;
+                outline: none;
+                resize: none;
+            }
+
+            .bottom
+            {
+                height: 300px;
+                width: 100%;
+                border: 1px solid black;
+                margin: 0;
+                padding: 0;
+                overflow: auto;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        </style>
+
+        <script>
+            window.onload = load;
+
+            async function load()
+            {
+                let screen = document.getElementById("left");
+                let output = await window.fetch("/sqlite/.tables");
+
+                screen.innerText = JSON.stringify(await output.json(), null, 4);
+            }
+
+            async function send(event)
+            {
+                if (event.which === 13 && !event.shiftKey)
+                {
+                    event.preventDefault();
+
+                    try
+                    {
+                        let command = document.getElementById("top").value;
+                        let screen = document.getElementById("bottom");
+                        let output = await window.fetch(`/sqlite/${command}`);
+
+                        screen.innerText = JSON.stringify(await output.json(), null, 4);
+                        document.getElementById("top").value = "";
+                        load();
+                    }
+                    catch
+                    {
+                        alert("invalid input\nplease use shift + enter to wrap");
+                    }
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <h1 class="title">
+            SQLite
+        </h1>
+
+        <div class="all">
+            <pre class="left" id="left">
+
+            </pre>
+
+            <div class="right">
+                <textarea class="top" id="top" onkeypress="send(event, this)"></textarea>
+
+                <pre class="bottom" id="bottom">
+
+                </pre>
+            </div>
+        </div>
+    </body>
+</html>
