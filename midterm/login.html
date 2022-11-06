@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            .top
+            {
+                text-align: center;
+                margin-top: 100px;
+                font-size: 210%;
+                font-family: Consolas, "courier new";
+            }
+
+            .center
+            {
+                width: 900px;
+                margin-top: 100px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .enter
+            {
+                text-align: center;
+            }
+
+            .tip
+            {
+                display: inline;
+                font-size: 105%;
+                margin-top: 8px;
+                font-family: Consolas, "courier new";
+            }
+
+            .box
+            {
+                width: 300px;
+                height: 30px;
+                font-size: 105%;
+                padding-left: 5px;
+                border: 1px solid black;
+                font-family: Consolas, "courier new";
+            }
+
+            .box:focus
+            {
+                outline: none !important;
+            }
+
+            .bottom
+            {
+                margin-top: 100px;
+            }
+
+            .btn
+            {
+                width: auto;
+                border: 1px solid black;
+                color: black;
+                padding: 10px 20px;
+                cursor: pointer;
+                background-color: white;
+                font-size: 105%;
+                font-family: Consolas, "courier new";
+            }
+
+            .btn:hover
+            {
+                color: white;
+                background: black;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="top">
+            Welcome
+        </div>
+
+        <form method="post" id="form">
+            <div class="center">
+                <div class="enter">
+                    <div class="tip">
+                        Username:
+                    </div>
+
+                    <input type="user" class="box" name="username" maxlength="16">
+                </div>
+
+                <div class="enter" style="margin-top: 50px;">
+                    <div class="tip">
+                        Password:
+                    </div>
+
+                    <input type="password" class="box" name="password" maxlength="32">
+                </div>
+            </div>
+
+            <div class="bottom">
+                <div class="enter">
+                    <button class="btn" type="submit" onclick="sign_in()">
+                        Sign In
+                    </button>
+
+                    <button class="btn" style="margin-left: 50px;" type="submit" onclick="sign_up()">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <script>
+            var url = "";
+
+            function sign_in()
+            {
+                url = "/sign_in";
+            }
+
+            function sign_up()
+            {
+                url = "/sign_up";
+            }
+
+            document.getElementById("form").addEventListener("submit", (event) =>
+            {
+                var request = new XMLHttpRequest();
+
+                request.open("POST", url, true);
+
+                request.onload = function()
+                {
+                    if (request.responseText == "sign_up_fail")
+                    {
+                        alert("Account already exists!");
+                    }
+                    else if (request.responseText == "sign_up_success")
+                    {
+                        alert("Sign up successfully!")
+                    }
+                    else if (request.responseText == "sign_in_fail")
+                    {
+                        alert("Account or password incorrect!");
+                    }
+                    else
+                    {
+                        sessionStorage.setItem("username", JSON.parse(request.responseText)["username"]);
+                        window.location.replace("/home.html");
+                    }
+                };
+
+                request.send(new FormData(event.target));
+                event.preventDefault();
+            });
+
+            if (sessionStorage.getItem("username") != null)
+            {
+                window.location.replace("/home.html");
+            }
+        </script>
+    </body>
+</html>
