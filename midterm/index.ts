@@ -31,8 +31,8 @@ app.use(async (ctx) =>
 
 async function sign_up(ctx: Context)
 {
-    const body = ctx.request.body({ type: "form-data" });
-    const data = await body.value.read();
+	const body = ctx.request.body({ type: "form-data" });
+	const data = await body.value.read();
 	const accounts: number = db.query(`SELECT COUNT(1) FROM users WHERE username='${ data["fields"]["username"] }'`)[0][0] as number;
 
 	if (accounts > 0)
@@ -48,8 +48,8 @@ async function sign_up(ctx: Context)
 
 async function sign_in(ctx: Context)
 {
-    const body = ctx.request.body({ type: "form-data" });
-    const data = await body.value.read();
+	const body = ctx.request.body({ type: "form-data" });
+	const data = await body.value.read();
 	const accounts: number = db.query(`SELECT COUNT(1) FROM users WHERE username='${ data["fields"]["username"] }'`)[0][0] as number;
 
 	if (accounts == 0)
