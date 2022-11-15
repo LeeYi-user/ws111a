@@ -1,6 +1,7 @@
 import { Application, Context, Router, send} from "https://deno.land/x/oak@v11.1.0/mod.ts";
 import { DB } from "https://deno.land/x/sqlite@v3.5.0/mod.ts";
 import { Session } from "https://deno.land/x/oak_sessions@v4.0.5/mod.ts";
+// import { setCookie } from "https://deno.land/std@0.164.0/http/cookie.ts";
 
 const db = new DB("chat.db");
 db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
@@ -70,6 +71,7 @@ async function sign_in(ctx: Context)
 		else
 		{
 			ctx.state.session.set("user", data["fields"]["username"]);
+			// setCookie(ctx.response.headers, { name: "session", value: ctx.state.session.sid, expires: new Date(3000, 1, 1)});
 			ctx.response.body = "sign in success";
 		}
 	}
@@ -119,7 +121,6 @@ async function chat(ctx: Context)
 
 	socket.onclose = function()
 	{
-		ctx.state.session.set("user", null);
 		clients.delete(socket);
 	};
 }
