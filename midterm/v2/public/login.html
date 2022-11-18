@@ -79,13 +79,13 @@
             Welcome
         </div>
 
-        <div class="center">
+        <form class="center" id="form">
             <div class="enter">
                 <div class="tip">
                     Username:
                 </div>
 
-                <input type="user" class="box" id="username" maxlength="16">
+                <input type="user" class="box" name="username" maxlength="16">
             </div>
 
             <div class="enter" style="margin-top: 50px;">
@@ -93,9 +93,9 @@
                     Password:
                 </div>
 
-                <input type="password" class="box" id="password" maxlength="32">
+                <input type="password" class="box" name="password" maxlength="32">
             </div>
-        </div>
+        </form>
 
         <div class="bottom">
             <div class="enter">
@@ -112,17 +112,13 @@
         <script>
             async function sign_up()
             {
-                let body = new FormData();
-                body.append("username", document.getElementById("username").value);
-                body.append("password", document.getElementById("password").value);
-
-                let request = await window.fetch("http://" + window.location.hostname + ":8000/sign_up",
+                const request = await window.fetch("http://" + window.location.hostname + ":8000/sign_up",
                 {
                     method: "POST",
-                    body: body
+                    body: new FormData(document.getElementById("form"))
                 });
 
-                request.text().then(responseText =>
+                request.text().then(function(responseText)
                 {
                     if (responseText == "sign up fail")
                     {
@@ -137,17 +133,13 @@
 
             async function sign_in()
             {
-                let body = new FormData();
-                body.append("username", document.getElementById("username").value);
-                body.append("password", document.getElementById("password").value);
-
-                let request = await window.fetch("http://" + window.location.hostname + ":8000/sign_in",
+                const request = await window.fetch("http://" + window.location.hostname + ":8000/sign_in",
                 {
                     method: "POST",
-                    body: body
+                    body: new FormData(document.getElementById("form"))
                 });
 
-                request.text().then(responseText =>
+                request.text().then(function(responseText)
                 {
                     if (responseText == "sign in fail")
                     {

@@ -1,6 +1,6 @@
 import { Application, Context, Router, send} from "https://deno.land/x/oak@v11.1.0/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.5.0/mod.ts";
-import { Session } from "https://deno.land/x/oak_sessions@v4.0.5/mod.ts";
+import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
+import { Session, SqliteStore } from "https://deno.land/x/oak_sessions@v4.0.5/mod.ts";
 
 const db = new DB("chat.db");
 db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
@@ -14,7 +14,7 @@ router.post("/sign_in", sign_in);
 router.get("/wss", chat);
 
 const app = new Application();
-app.use(Session.initMiddleware());
+app.use(Session.initMiddleware(new SqliteStore(db, "session"), { cookieSetOptions: { expires: new Date(3000, 1, 1) } }));
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -105,15 +105,23 @@ async function chat(ctx: Context)
 		}
 	};
 
-	socket.onmessage = function(msg)
+	socket.onmessage = function(event)
 	{
-		const message = "&lt;" + user + "&gt; " + msg.data;
+		const data = JSON.parse(event.data);
 
-		db.query("INSERT INTO msgs (msg) VALUES (?)", [message]);
-
-		for (const client of clients)
+		for (const key in data)
 		{
-			client[0].send(JSON.stringify({ "message": message }));
+			if (key == "message")
+			{
+				const msg = "&lt;" + user + "&gt; " + data[key];
+
+				db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
+
+				for (const [socket, _user] of clients)
+				{
+					socket.send(JSON.stringify({ "message": msg }));
+				}
+			}
 		}
 	};
 

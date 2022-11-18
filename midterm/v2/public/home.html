@@ -94,13 +94,13 @@
         </div>
 
         <script>
-            var socket = new WebSocket("ws://" + window.location.hostname + ":8000/wss");
+            const socket = new WebSocket("ws://" + window.location.hostname + ":8000/wss");
 
             socket.onmessage = function(event)
             {
-                let data = JSON.parse(event.data);
+                const data = JSON.parse(event.data);
 
-                for (let key in data)
+                for (const key in data)
                 {
                     if (key == "command")
                     {
@@ -128,7 +128,7 @@
             {
                 if (event.key == "Enter" && ele.value != "")
                 {
-                    socket.send(ele.value);
+                    socket.send(JSON.stringify({ "message": ele.value }));
                     ele.value = null;
                 }
             }
