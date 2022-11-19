@@ -11,7 +11,7 @@ router.get("/", redir);
 router.get("/public/(.*)", pub);
 router.post("/sign_up", sign_up);
 router.post("/sign_in", sign_in);
-router.get("/wss", chat);
+router.get("/wss", wss);
 
 const app = new Application();
 app.use(Session.initMiddleware(new SqliteStore(db, "session"), { cookieSetOptions: { expires: new Date(3000, 1, 1) } }));
@@ -77,7 +77,7 @@ async function sign_in(ctx: Context)
 
 const clients = new Map<WebSocket, string>();
 
-async function chat(ctx: Context)
+async function wss(ctx: Context)
 {
 	if (!ctx.isUpgradable)
 	{
@@ -89,7 +89,7 @@ async function chat(ctx: Context)
 
 	clients.set(socket, user);
 
-	socket.onopen = function()
+	socket.onopen = () =>
 	{
 		if (user == null)
 		{
@@ -105,7 +105,7 @@ async function chat(ctx: Context)
 		}
 	};
 
-	socket.onmessage = function(event)
+	socket.onmessage = (event) =>
 	{
 		const data = JSON.parse(event.data);
 
@@ -125,11 +125,11 @@ async function chat(ctx: Context)
 		}
 	};
 
-	socket.onclose = function()
+	socket.onclose = () =>
 	{
 		clients.delete(socket);
 	};
 }
 
-console.log("Server running at http://localhost:8000");
-await app.listen({ port: 8000 });
+console.log("Server running at http://localhost:8080");
+await app.listen({ port: 8080 });

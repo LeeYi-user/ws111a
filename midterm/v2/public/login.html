@@ -112,13 +112,13 @@
         <script>
             async function sign_up()
             {
-                const request = await window.fetch("http://" + window.location.hostname + ":8000/sign_up",
+                const request = await window.fetch("http://" + window.location.hostname + ":8080/sign_up",
                 {
                     method: "POST",
                     body: new FormData(document.getElementById("form"))
                 });
 
-                request.text().then(function(responseText)
+                request.text().then((responseText) =>
                 {
                     if (responseText == "sign up fail")
                     {
@@ -133,13 +133,13 @@
 
             async function sign_in()
             {
-                const request = await window.fetch("http://" + window.location.hostname + ":8000/sign_in",
+                const request = await window.fetch("http://" + window.location.hostname + ":8080/sign_in",
                 {
                     method: "POST",
                     body: new FormData(document.getElementById("form"))
                 });
 
-                request.text().then(function(responseText)
+                request.text().then((responseText) =>
                 {
                     if (responseText == "sign in fail")
                     {

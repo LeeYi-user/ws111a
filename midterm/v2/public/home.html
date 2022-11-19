@@ -89,49 +89,60 @@
                     Message:
                 </div>
 
-                <input type="text" class="box" id="box" maxlength="256" onkeydown="enter(event, this)">
+                <input type="text" class="box" id="box" maxlength="256">
             </div>
         </div>
 
         <script>
-            const socket = new WebSocket("ws://" + window.location.hostname + ":8000/wss");
-
-            socket.onmessage = function(event)
+            const connect = () => new Promise((res, rej) =>
             {
-                const data = JSON.parse(event.data);
+                const socket = new WebSocket("ws://" + window.location.hostname + ":8080/wss");
 
-                for (const key in data)
+                socket.addEventListener("open", () => res(socket));
+                socket.addEventListener("error", () => res(connect()));
+            });
+
+            connect().then((socket) =>
+            {
+                socket.onmessage = (event) =>
                 {
-                    if (key == "command")
+                    const data = JSON.parse(event.data);
+
+                    for (const key in data)
                     {
-                        if (data[key] == "sign out")
+                        if (key == "command")
                         {
-                            alert("You need to sign in first!");
-                            window.location.replace("/public/");
+                            if (data[key] == "sign out")
+                            {
+                                alert("You need to sign in first!");
+                                window.location.replace("/public/");
+                            }
+                        }
+                        else if (key == "message")
+                        {
+                            document.getElementById("chat").innerHTML += "<div>" + data[key] + "</div>";
+
+                            if (document.getElementById("chat").childElementCount >= 100)
+                            {
+                                document.getElementById("chat").removeChild(document.getElementById("chat").firstChild);
+                            }
+
+                            document.getElementById("center").scrollTop = document.getElementById("center").scrollHeight;
                         }
                     }
-                    else if (key == "message")
-                    {
-                        document.getElementById("chat").innerHTML += "<div>" + data[key] + "</div>";
+                };
 
-                        if (document.getElementById("chat").childElementCount >= 100)
-                        {
-                            document.getElementById("chat").removeChild(document.getElementById("chat").firstChild);
-                        }
-
-                        document.getElementById("center").scrollTop = document.getElementById("center").scrollHeight;
-                    }
-                }
-            };
-
-            function enter(event, ele)
-            {
-                if (event.key == "Enter" && ele.value != "")
+                document.getElementById("box").onkeydown = (event) =>
                 {
-                    socket.send(JSON.stringify({ "message": ele.value }));
-                    ele.value = null;
-                }
-            }
+                    const ele = document.getElementById("box");
+
+                    if (event.key == "Enter" && ele.value != "")
+                    {
+                        socket.send(JSON.stringify({ "message": ele.value }));
+                        ele.value = null;
+                    }
+                };
+            });
         </script>
     </body>
 </html>
