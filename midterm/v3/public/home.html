@@ -188,11 +188,14 @@
                         }
                     };
 
-                    setTimeout(() =>
+                    const loop = setInterval(() =>
                     {
-                        socket.close();
-                        main();
-                    }, 40000);
+                        if (socket.readyState != 1)
+                        {
+                            main();
+                            clearInterval(loop);
+                        }
+                    }, 1000);
                 });
             }
 
