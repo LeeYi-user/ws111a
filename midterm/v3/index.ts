@@ -99,34 +99,37 @@ async function wss(ctx: Context)
 
 	socket.onmessage = (event) =>
 	{
-		const data = JSON.parse(event.data);
-
-		for (const key in data)
+		if (user != null)
 		{
-			if (key == "history")
-			{
-				if (data[key] > 0)
-				{
-					const msgs = db.query(`SELECT msg FROM msgs ORDER BY rowid DESC LIMIT ${ data[key] }`);
+			const data = JSON.parse(event.data);
 
-					for (const [msg] of msgs.reverse())
+			for (const key in data)
+			{
+				if (key == "history")
+				{
+					if (data[key] > 0)
+					{
+						const msgs = db.query(`SELECT msg FROM msgs ORDER BY rowid DESC LIMIT ${ data[key] }`);
+
+						for (const [msg] of msgs.reverse())
+						{
+							socket.send(JSON.stringify({ "message": msg }));
+						}
+					}
+
+					const count: number = db.query(`SELECT COUNT(1) FROM msgs`)[0][0] as number;
+					socket.send(JSON.stringify({ "count": count }));
+				}
+				else if (key == "message")
+				{
+					const msg = "&lt;" + user + "&gt; " + data[key];
+
+					db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
+
+					for (const [socket, _user] of clients)
 					{
 						socket.send(JSON.stringify({ "message": msg }));
 					}
-				}
-
-				const count: number = db.query(`SELECT COUNT(1) FROM msgs`)[0][0] as number;
-				socket.send(JSON.stringify({ "count": count }));
-			}
-			else if (key == "message")
-			{
-				const msg = "&lt;" + user + "&gt; " + data[key];
-
-				db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
-
-				for (const [socket, _user] of clients)
-				{
-					socket.send(JSON.stringify({ "message": msg }));
 				}
 			}
 		}
