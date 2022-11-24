@@ -93,43 +93,44 @@ async function wss(ctx: Context)
 	{
 		if (user == null)
 		{
-			socket.send(JSON.stringify({ "command": "sign out" }));
+			socket.send(JSON.stringify({ "command": "get out" }));
+		}
+		else
+		{
+			socket.send(JSON.stringify({ "command": "get in" }));
 		}
 	};
 
 	socket.onmessage = (event) =>
 	{
-		if (user != null)
+		const data = JSON.parse(event.data);
+
+		for (const key in data)
 		{
-			const data = JSON.parse(event.data);
-
-			for (const key in data)
+			if (key == "history")
 			{
-				if (key == "history")
+				if (data[key] > 0)
 				{
-					if (data[key] > 0)
-					{
-						const msgs = db.query(`SELECT msg FROM msgs ORDER BY rowid DESC LIMIT ${ data[key] }`);
+					const msgs = db.query(`SELECT msg FROM msgs ORDER BY rowid DESC LIMIT ${ data[key] }`);
 
-						for (const [msg] of msgs.reverse())
-						{
-							socket.send(JSON.stringify({ "message": msg }));
-						}
-					}
-
-					const count: number = db.query(`SELECT COUNT(1) FROM msgs`)[0][0] as number;
-					socket.send(JSON.stringify({ "count": count }));
-				}
-				else if (key == "message")
-				{
-					const msg = "&lt;" + user + "&gt; " + data[key];
-
-					db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
-
-					for (const [socket, _user] of clients)
+					for (const [msg] of msgs.reverse())
 					{
 						socket.send(JSON.stringify({ "message": msg }));
 					}
+				}
+
+				const count: number = db.query(`SELECT COUNT(1) FROM msgs`)[0][0] as number;
+				socket.send(JSON.stringify({ "count": count }));
+			}
+			else if (key == "message")
+			{
+				const msg = "&lt;" + user + "&gt; " + data[key];
+
+				db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
+
+				for (const [socket, _user] of clients)
+				{
+					socket.send(JSON.stringify({ "message": msg }));
 				}
 			}
 		}

@@ -108,15 +108,6 @@
 
                 connect().then((socket) =>
                 {
-                    if (load == 0)
-                    {
-                        socket.send(JSON.stringify({ "history": 100 }));
-                    }
-                    else
-                    {
-                        socket.send(JSON.stringify({ "history": 0 }));
-                    }
-
                     socket.onmessage = (event) =>
                     {
                         const data = JSON.parse(event.data);
@@ -125,10 +116,21 @@
                         {
                             if (key == "command")
                             {
-                                if (data[key] == "sign out")
+                                if (data[key] == "get out")
                                 {
                                     alert("You need to sign in first!");
                                     window.location.replace("/public/");
+                                }
+                                else if (data[key] == "get in")
+                                {
+                                    if (load == 0)
+                                    {
+                                        socket.send(JSON.stringify({ "history": 100 }));
+                                    }
+                                    else
+                                    {
+                                        socket.send(JSON.stringify({ "history": 0 }));
+                                    }
                                 }
                             }
                             else if (key == "message")
