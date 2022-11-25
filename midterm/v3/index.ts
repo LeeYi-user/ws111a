@@ -1,10 +1,21 @@
 import { Application, Context, Router, send} from "https://deno.land/x/oak@v11.1.0/mod.ts";
-import { DB } from "https://deno.land/x/sqlite@v3.4.0/mod.ts";
-import { Session, SqliteStore } from "https://deno.land/x/oak_sessions@v4.0.5/mod.ts";
+import { MongoClient } from "https://deno.land/x/mongo@v0.29.4/mod.ts";
+import { Session, MongoStore } from "https://deno.land/x/oak_sessions@v4.0.5/mod.ts";
 
-const db = new DB("chat.db");
-db.query("CREATE TABLE IF NOT EXISTS users (username TEXT, password TEXT)");
-db.query("CREATE TABLE IF NOT EXISTS msgs (msg TEXT)");
+interface User
+{
+	"username": string;
+	"password": string;
+}
+
+interface Msg
+{
+	"msg": string;
+}
+
+const client = new MongoClient();
+await client.connect("mongodb+srv://<username>:<password>@<db_cluster_url>/?authMechanism=SCRAM-SHA-1");
+const db = client.database("chat");
 
 const router = new Router();
 router.get("/", redir);
@@ -14,7 +25,7 @@ router.post("/sign_in", sign_in);
 router.get("/wss", wss);
 
 const app = new Application();
-app.use(Session.initMiddleware(new SqliteStore(db, "session"), { cookieSetOptions: { expires: new Date(3000, 1, 1) } }));
+app.use(Session.initMiddleware(new MongoStore(db, "session"), { cookieSetOptions: { expires: new Date(3000, 1, 1) } }));
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -36,7 +47,7 @@ async function sign_up(ctx: Context)
 {
 	const body = ctx.request.body({ type: "form-data" });
 	const data = await body.value.read();
-	const accounts: number = db.query(`SELECT COUNT(1) FROM users WHERE username='${ data["fields"]["username"] }'`)[0][0] as number;
+	const accounts = await db.collection<User>("users").countDocuments({ "username": data["fields"]["username"] });
 
 	if (accounts > 0)
 	{
@@ -44,7 +55,7 @@ async function sign_up(ctx: Context)
 	}
 	else
 	{
-		db.query("INSERT INTO users (username, password) VALUES (?, ?)", [data["fields"]["username"], data["fields"]["password"]]);
+		await db.collection<User>("users").insertOne({ "username": data["fields"]["username"], "password": data["fields"]["password"] });
 		ctx.response.body = "sign up success";
 	}
 }
@@ -53,7 +64,7 @@ async function sign_in(ctx: Context)
 {
 	const body = ctx.request.body({ type: "form-data" });
 	const data = await body.value.read();
-	const accounts: number = db.query(`SELECT COUNT(1) FROM users WHERE username='${ data["fields"]["username"] }'`)[0][0] as number;
+	const accounts = await db.collection<User>("users").countDocuments({ "username": data["fields"]["username"] });
 
 	if (accounts == 0)
 	{
@@ -61,7 +72,7 @@ async function sign_in(ctx: Context)
 	}
 	else
 	{
-		const password: string = db.query(`SELECT password FROM users WHERE username='${ data["fields"]["username"] }'`)[0][0] as string;
+		const password = (await db.collection<User>("users").findOne({ "username": data["fields"]["username"] }))?.password;
 
 		if (password != data["fields"]["password"])
 		{
@@ -69,7 +80,7 @@ async function sign_in(ctx: Context)
 		}
 		else
 		{
-			ctx.state.session.set("user", data["fields"]["username"]);
+			await ctx.state.session.set("user", data["fields"]["username"]);
 			ctx.response.body = "sign in success";
 		}
 	}
@@ -101,7 +112,7 @@ async function wss(ctx: Context)
 		}
 	};
 
-	socket.onmessage = (event) =>
+	socket.onmessage = async (event) =>
 	{
 		const data = JSON.parse(event.data);
 
@@ -111,22 +122,22 @@ async function wss(ctx: Context)
 			{
 				if (data[key] > 0)
 				{
-					const msgs = db.query(`SELECT msg FROM msgs ORDER BY rowid DESC LIMIT ${ data[key] }`);
+					const msgs = await db.collection<Msg>("msgs").find().sort({ "_id": -1 }).limit(data[key]).toArray();
 
-					for (const [msg] of msgs.reverse())
+					for (const data of msgs.reverse())
 					{
-						socket.send(JSON.stringify({ "message": msg }));
+						socket.send(JSON.stringify({ "message": data.msg }));
 					}
 				}
 
-				const count: number = db.query(`SELECT COUNT(1) FROM msgs`)[0][0] as number;
+				const count = await db.collection<Msg>("msgs").countDocuments();
 				socket.send(JSON.stringify({ "count": count }));
 			}
 			else if (key == "message")
 			{
 				const msg = "&lt;" + user + "&gt; " + data[key];
 
-				db.query("INSERT INTO msgs (msg) VALUES (?)", [msg]);
+				await db.collection<Msg>("msgs").insertOne({ "msg": msg });
 
 				for (const [socket, _user] of clients)
 				{
